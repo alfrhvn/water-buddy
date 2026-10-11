@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#087eaf">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Water Buddy">
+<link rel="manifest" href="manifest.json">
+<title>Water Buddy</title>
+<style>
+body{margin:0;padding:24px;background:#eaf7ff;color:#16415b;
+font:17px system-ui;text-align:center}
+main{max-width:400px;margin:30px auto;padding:25px;background:white;
+border-radius:26px;box-shadow:0 8px 30px #16415b18}
+h1{color:#087eaf} .drop{font-size:65px}
+.count{font-size:54px;font-weight:bold;margin:16px}
+button{display:block;width:100%;padding:15px;margin:12px 0;
+border:0;border-radius:14px;background:#087eaf;color:white;
+font:inherit;cursor:pointer}
+.secondary{background:#e3f3fc;color:#16415b}
+small{color:#658093}
+</style>
+</head>
+<body>
+<main>
+<div class="drop">💧</div>
+<h1>Water Buddy</h1>
+<p>A little sip, a healthier habit.</p>
+<p>Glasses of water today</p>
+<div class="count" id="count">0</div>
+<button id="add">＋ I drank a glass</button>
+<button class="secondary" id="reset">Reset today's count</button>
+<hr>
+<h3>⏰ Every 5 minutes</h3>
+<p id="status">Your hydration buddy is ready.</p>
+<button id="enable">Enable notifications</button>
+<small>Install this site on your Home Screen. Push notifications will be configured in the next step.</small>
+</main>
+<script>
+const count=document.getElementById('count');
+const status=document.getElementById('status');
+const today=()=>new Date().toLocaleDateString('en-CA');
+function load(){
+ const saved=localStorage.getItem('wb-date');
+ if(saved!==today()){
+  localStorage.setItem('wb-date',today());
+  localStorage.setItem('wb-count','0');
+ }
+ count.textContent=localStorage.getItem('wb-count')||'0';
+}
+document.getElementById('add').onclick=()=>{
+ localStorage.setItem('wb-count',String(Number(count.textContent)+1));
+ load();
+ status.textContent='Great job! Keep sipping 💧';
+};
+document.getElementById('reset').onclick=()=>{
+ if(confirm("Reset today's water count?")){
+  localStorage.setItem('wb-count','0');load();
+ }
+};
+document.getElementById('enable').onclick=async()=>{
+ if(!('Notification' in window)){
+  status.textContent='Notifications are not supported here.';return;
+ }
+ if(!window.matchMedia('(display-mode: standalone)').matches){
+  status.textContent='First add Water Buddy to your Home Screen, then open it there.';
+  return;
+ }
+ const permission=await Notification.requestPermission();
+ status.textContent=permission==='granted'
+  ?'Permission granted! Next, we will connect background push reminders.'
+  :'Notifications are not enabled. Check your iPhone settings.';
+};
+load();
+</script>
+</body>
+</html>
